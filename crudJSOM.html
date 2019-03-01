@@ -1,0 +1,187 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<script>
+    function createData() {
+        function CreateListItem() {
+            var clientContext = new SP.ClientContext.get_current();
+            var oList = clientContext.get_web().get_lists().getByTitle("CustomListItems");
+
+            var itemCreateInfo = new SP.ListItemCreationInformation();
+            this.oListItem = oList.addItem(itemCreateInfo);
+
+            oListItem.set_item('Title', document.getElementById('txtTitle').value);
+            oListItem.set_item('Programming_x0020_Models', document.getElementById('txtModel').value);
+
+            oListItem.update();
+            clientContext.load(oListItem);
+
+            clientContext.executeQueryAsync(
+                OnSuccess.bind(this),
+                OnFailure
+            );
+        }
+
+        // Function to handle the success event.
+        function OnSuccess() {
+            alert('Item created: ' + oListItem.get_id());
+            clearInputs();
+        }
+
+        // Function to handle the failure event for CreateListItem.
+        function OnFailure(sender, args) {
+            alert("Error occurred at CreateListItem. See console for details.");
+            console.log('Request failed at CreateListItem :' + args.get_message() + '\n' + args.get_stackTrace());
+        }
+
+        if (document.getElementById("txtTitle").value == "") {
+            alert("Title cannot be Empty");
+        }
+        else if (document.getElementById("txtModel").value == "") {
+            alert("Programming Model cannot be Empty");
+        }
+        else {
+            ExecuteOrDelayUntilScriptLoaded(CreateListItem, "sp.js");
+        }
+
+    }
+    function retrieveData() {
+        function RetrieveListItems() {
+            var clientContext = new SP.ClientContext.get_current();
+            var oList = clientContext.get_web().get_lists().getByTitle("CustomListItems");
+            var ViewXml = "<View><Query><Where><Eq><FieldRef Name='ID' /><Value Type='Counter'>" + document.getElementById("txtId").value + "</Value></Eq></Where><OrderBy><FieldRef Name='ID' Ascending='True' /></OrderBy></Query></View>"
+            // var camlString = "<View Scope='RecursiveAll'><Query><OrderBy><FieldRef Name='ID' Ascending='True' /></OrderBy></Query></View>";
+            var camlQuery = new SP.CamlQuery();
+            camlQuery.set_viewXml(ViewXml);
+
+            this.listItemCollection = oList.getItems(camlQuery);
+            clientContext.load(listItemCollection, "Include(ID, Title, Programming_x0020_Models)");
+
+            clientContext.executeQueryAsync(
+                OnSuccess.bind(this),
+                OnFailure
+            );
+        }
+
+        // Function to handle the success event for RetrieveListItems.
+        function OnSuccess() {
+            var enumerator = listItemCollection.getEnumerator();
+            var itemCount = listItemCollection.get_count();
+            // iterating data from listItemCollection
+            if (itemCount > 0) {
+                while (enumerator.moveNext()) {
+                    var results = enumerator.get_current();
+                    // data can be utilized here.. 
+                    console.log(results.get_item("ID") + ' -- ' + results.get_item("Title") + ' -- ' + results.get_item("Programming_x0020_Models"));
+                    document.getElementById("txtTitle").value = results.get_item("Title");
+                    document.getElementById("txtModel").value = results.get_item("Programming_x0020_Models");
+                }
+            }
+            else {
+                alert("ID does not exist!");
+            }
+        }
+
+        // Function to handle the failure event for RetrieveListItems.
+        function OnFailure(sender, args) {
+            alert("Error occurred at RetrieveListItems. See console for details.");
+            console.log('Request failed at RetrieveListItems :' + args.get_message() + '\n' + args.get_stackTrace());
+        }
+
+        ExecuteOrDelayUntilScriptLoaded(RetrieveListItems, "sp.js");
+    }
+    function updateData() {
+        function UpdateListItem() {
+            var clientContext = new SP.ClientContext.get_current();
+            var oList = clientContext.get_web().get_lists().getByTitle("CustomListItems");
+
+            this.itemId = document.getElementById("txtId").value;
+            this.oListItem = oList.getItemById(itemId);
+            oListItem.set_item('Title', document.getElementById("txtTitle").value);
+            oListItem.set_item('Programming_x0020_Models', document.getElementById("txtModel").value);
+            oListItem.update();
+
+            clientContext.executeQueryAsync(
+                OnSuccess.bind(this),
+                OnFailure
+            );
+        }
+
+        // Function to handle the success event.
+        function OnSuccess() {
+            alert('Item updated: ' + itemId);
+            clearInputs();
+        }
+
+        // Function to handle the failure event for UpdateListItem.
+        function OnFailure(sender, args) {
+            alert("Error occurred at UpdateListItem. See console for details.");
+            console.log('Request failed at UpdateListItem :' + args.get_message() + '\n' + args.get_stackTrace());
+        }
+
+
+        if (document.getElementById("txtTitle").value == "") {
+            alert("Title cannot be Empty");
+        }
+        else if (document.getElementById("txtModel").value == "") {
+            alert("Programming Model cannot be Empty");
+        }
+        else {
+            ExecuteOrDelayUntilScriptLoaded(UpdateListItem, "sp.js");
+        }
+
+    }
+    function deleteData() {
+        function DeleteListItem() {
+            var clientContext = new SP.ClientContext.get_current();
+            var oList = clientContext.get_web().get_lists().getByTitle("CustomListItems");
+
+            this.itemId = document.getElementById("txtId").value;
+            this.oListItem = oList.getItemById(itemId);
+            oListItem.deleteObject();
+
+            clientContext.executeQueryAsync(
+                OnSuccess.bind(this),
+                OnFailure
+            );
+        }
+
+        // Function to handle the success event.
+        function OnSuccess() {
+            alert('Item deleted: ' + itemId);
+            clearInputs();
+        }
+
+        // Function to handle the failure event for DeleteListItem.
+        function OnFailure(sender, args) {
+            alert("Error occurred at DeleteListItem. See console for details.");
+            console.log('Request failed at DeleteListItems :' + args.get_message() + '\n' + args.get_stackTrace());
+        }
+        if (document.getElementById("txtId").value == "") {
+            alert("ID should not be empty");
+        }
+        else {
+            ExecuteOrDelayUntilScriptLoaded(DeleteListItem, "sp.js");
+        }
+    }
+    function clearInputs() {
+        document.getElementById("txtTitle").value = "";
+        document.getElementById("txtModel").value = "";
+        document.getElementById("txtId").value = "";
+    }
+</script>
+<div style="max-width:500px;">
+    <div class="form-group">
+        <input type="text" class="form-control" id="txtTitle" placeholder="Title" required>
+    </div>
+    <div class="form-group">
+        <input type="text" class="form-control" id="txtModel" placeholder="ProgrammingModels" required>
+    </div>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" id="txtId" placeholder="ID" type="number">
+        <div class="btn-group input-group-append" role="group">
+            <button type="button" class="btn btn-secondary" onclick="retrieveData()">Retrieve</button>
+            <button type="button" class="btn btn-secondary" onclick="deleteData()">Delete</button>
+            <button type="button" class="btn btn-secondary" onclick="createData()">Create</button>
+            <button type="button" class="btn btn-secondary" onclick="updateData()">Update</button>
+        </div>
+    </div>
+</div>
