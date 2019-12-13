@@ -1,0 +1,59 @@
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+<!-- <script>
+  // Create List Item
+
+  var strListTitle = "Class" + document.getElementById("sgrade");
+
+  var data = {
+    __metadata: { 'type': 'SP.Data' + strListTitle + 'ListItem' },
+    "Student Name": document.getElementById("sname"),
+    "Student Age": document.getElementById("sage"),
+    "Student Gender": document.getElementById("sgender"),
+    "Student Percentage": document.getElementById("spercentage").value / 100,
+    "Student Phone": document.getElementById("sphone"),
+  };
+
+  var createListForm = $.ajax({
+    type: "POST",
+    async: true,
+    headers: {
+      "accept": "application/json;odata=verbose",
+      "content-type": "application/json;odata=verbose",
+      "X-RequestDigest": $("#__REQUESTDIGEST").val()
+    },
+    url: _spPageContextInfo.webAbsoluteUrl + '/api/web/Lists/GetByTitle(\'' + strListTitle + '\')/Items',
+    data: JSON.stringify(data),
+    success: function logData(data) {
+      console.log("Data Added!");
+    },
+    failure: function (error) {
+      console.log("Error in AJAX call to SP REST API: " + error.message);
+    }
+  });
+
+</script> -->
+<script>
+  function createListForm() {
+    var clientContext =  
+  }
+</script>
+
+
+<div>
+  <ul style="list-style-type:none;">
+    <li><span>Enter Grade Number : <input type="number" min="1" max="10" id="sgrade" /></span></li>
+    <li> <span>Student Name : <input type="text" id="sname" /> </span></li>
+    <li> <span>Student Age : <input type="number" id="sage" /> </span></li>
+    <li> <span>Student Gender :
+        <span id="sgender">
+          <input type="radio" value="male" checked />male
+          <input type="radio" value="female" />female
+          <input type="radio" value="transgender" />transgender
+        </span> </span></li>
+    <li> <span>Student Percentage :
+        <input type="number" min="0" max="100" id="spercentage" /> </span></li>
+    <li> <span>Student Phone : <input type="number" maxlength="10" minlength="10" id="sphone" /> </span></li>
+    <li> <span><input type="submit" onclick="createListForm()"></span></li>
+  </ul>
+</div>
